@@ -55,6 +55,18 @@ namespace Asteroids
             };
         }
 
+        public override void Update()
+        {
+            base.Update();
+            foreach (Asteroid asteroid in Asteroids.Entities.FindAll((e) => e is Asteroid))
+            {
+                if (Math.Sqrt(Math.Pow(asteroid.X - X, 2) + Math.Pow(asteroid.Y - Y, 2)) < size*1.55f && !asteroid.spawning)
+                {
+                    Asteroids.NeedsToReset = true;
+                }
+            }
+        }
+
         public void Shoot()
         {
             if (Asteroids.Ticks - lastShot > fireDelay)
@@ -87,6 +99,16 @@ namespace Asteroids
             GL.End();
 
             GL.PopMatrix();
+        }
+
+        public override void Reset()
+        {
+           X = Asteroids.GameWidth / 2f;
+           Y = Asteroids.GameHeight / 2f;
+           theta = 0;
+           dTheta = 0;
+           accelerating = false;
+           speed = 0;
         }
     }
 }

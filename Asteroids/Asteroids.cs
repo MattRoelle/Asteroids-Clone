@@ -17,81 +17,105 @@ namespace Asteroids
         public static float GameWidth = 400f;
         public static float GameHeight = 300f;
 
+        public static bool NeedsToReset = false;
+
         private static Random random = new Random();
+
+        private static GameWindow game;
 
         public static Int64 Ticks = 0;
 
         [STAThread]
         public static void Main()
         {
-            using (var game = new GameWindow())
+            StartGame();
+            ResetGame();
+        }
+
+        public static void StartGame()
+        {
+            game = new GameWindow();
+            ResetGame();
+
+            Entities.Add(new Player(game));
+
+            game.Load += (sender, e) =>
             {
-                Entities.Add(new Player(game));
+                // setup settings, load textures, sounds
+                game.VSync = VSyncMode.On;
 
-                game.Load += (sender, e) =>
+                // Initialize
+                GL.MatrixMode(MatrixMode.Projection);
+                GL.LoadIdentity();
+                GL.Ortho(0.0, GameWidth, GameHeight, 0.0, 0.0, 4.0);
+
+                GL.Disable(EnableCap.DepthTest);
+                GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+            };
+
+            game.Resize += (sender, e) =>
+            {
+                GL.Viewport(0, 0, game.Width, game.Height);
+            };
+
+            game.UpdateFrame += (sender, e) =>
+            {
+                Ticks++;
+
+                if (random.NextDouble() < 0.01 && Entities.FindAll((entity) => entity is Asteroid).Count < 3)
+                    Entities.Add(new Asteroid(true));
+
+                // add game logic, input handling
+                if (game.Keyboard[Key.Escape])
                 {
-                    // setup settings, load textures, sounds
-                    game.VSync = VSyncMode.On;
+                    game.Exit();
+                }
 
-                    // Initialize
-                    GL.MatrixMode(MatrixMode.Projection);
-                    GL.LoadIdentity();
-                    GL.Ortho(0.0, GameWidth, GameHeight, 0.0, 0.0, 4.0);
-
-                    GL.Disable(EnableCap.DepthTest);
-                    GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-                };
-
-                game.Resize += (sender, e) =>
+                foreach (Entity entity in Entities)
                 {
-                    GL.Viewport(0, 0, game.Width, game.Height);
-                };
+                    if (!entity.dead)
+                        entity.Update();
+                }
 
-                game.UpdateFrame += (sender, e) =>
+                foreach (Entity entity in EntitiesToSpawn)
                 {
-                    Ticks++;
-
-                    if (random.NextDouble() < 0.01)
-                        Entities.Add(new Asteroid());
-
-                    // add game logic, input handling
-                    if (game.Keyboard[Key.Escape])
-                    {
-                        game.Exit();
-                    }
-
-                    foreach (Entity entity in Entities)
-                    {
-                        if (!entity.dead)
-                            entity.Update();
-                    }
-
-                    foreach (Entity entity in EntitiesToSpawn)
-                    {
-                        Entities.Add(entity);
-                    }
+                    Entities.Add(entity);
+                }
 
 
-                    EntitiesToSpawn.RemoveAll((entity) => true);
-                    Entities.RemoveAll((entity) => entity.dead);
-                };
+                EntitiesToSpawn.RemoveAll((entity) => true);
+                Entities.RemoveAll((entity) => entity.dead);
 
-                game.RenderFrame += (sender, e) =>
+                if (NeedsToReset)
                 {
-                    // render graphics
-                    GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+                    ResetGame();
+                }
+            };
 
-                    foreach (Entity entity in Entities)
-                    {
-                        entity.Render();
-                    }
+            game.RenderFrame += (sender, e) =>
+            {
+                // render graphics
+                GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-                    game.SwapBuffers();
-                };
+                foreach (Entity entity in Entities)
+                {
+                    entity.Render();
+                }
 
-                // Run the game at 60 updates per second
-                game.Run(60.0);
+                game.SwapBuffers();
+            };
+
+            // Run the game at 60 updates per second
+            game.Run(60.0);
+        }
+
+        public static void ResetGame()
+        {
+            foreach(Entity entity in Entities)
+            {
+                entity.Reset();
             }
+            NeedsToReset = false;
         }
     }
 }

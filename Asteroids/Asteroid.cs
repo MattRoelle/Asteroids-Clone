@@ -17,8 +17,15 @@ namespace Asteroids
         public int grain;
         public float[][] points;
 
-        public Asteroid()
+        public bool spawning;
+
+        public Int64 spawnTime = 95;
+        public Int64 birthTicks;
+
+        public Asteroid(bool initialSpawn)
         {
+            birthTicks = Asteroids.Ticks;
+
             Random r = new Random();
             // Initial Position
             X = (float)r.NextDouble() * Asteroids.GameWidth;
@@ -36,10 +43,20 @@ namespace Asteroids
                 points[i] = new float[2] { (float)Math.Cos(angle)*alteredSize, (float)Math.Sin(angle)*alteredSize };
             }
 
-                // Speed
-                accelerating = true;
+            // Speed
             topSpeed = (float)(r.NextDouble() * 3) + 1f;
-            speed = topSpeed;
+            speed = 0f;
+
+            if (initialSpawn)
+            {
+                spawning = true;
+            }
+            else
+            {
+                spawning = false;
+                accelerating = true;
+                speed = topSpeed;
+            }
         }
 
         public override void Render()
@@ -49,6 +66,12 @@ namespace Asteroids
            GL.PushMatrix();
            GL.Translate(X, Y, 0);
            GL.Rotate(Asteroids.Ticks / (size / 4), 0, 0, 1);
+           if (spawning)
+           {
+               float x = ((float)(Asteroids.Ticks - birthTicks) / (float)spawnTime) * 3;
+               float scale = 2.2f * (float)((Math.Pow(x, 3) + Math.Pow(x, 2)) / (Math.Pow(x, 4) + x));
+               GL.Scale(scale, scale, 1);
+           }
 
            GL.Begin(PrimitiveType.LineStrip);
            GL.Color3(Color.Ivory);
@@ -66,18 +89,42 @@ namespace Asteroids
         {
             base.Update();
 
-            foreach(Bullet bullet in Asteroids.Entities.FindAll((e) => e is Bullet))
+            if (spawning && Asteroids.Ticks - birthTicks > spawnTime)
             {
-                if (Math.Sqrt(Math.Pow(bullet.X - X, 2) + Math.Pow(bullet.Y - Y, 2)) < size)
+                spawning = false;
+                accelerating = true;
+            }
+
+            if (!spawning)
+            {
+                foreach (Bullet bullet in Asteroids.Entities.FindAll((e) => e is Bullet))
                 {
-                    this.dead = true;
-                    bullet.dead = true;
-                    Asteroids.EntitiesToSpawn.Add(new Explosion()
+                    if (Math.Sqrt(Math.Pow(bullet.X - X, 2) + Math.Pow(bullet.Y - Y, 2)) < size*1.35f)
                     {
-                        X = X,
-                        Y = Y
-                    });
-                }
+                        this.dead = true;
+                        bullet.dead = true;
+                        Asteroids.EntitiesToSpawn.Add(new Explosion()
+                        {
+                            X = X,
+                            Y = Y
+                        });
+
+                        Random r = new Random();
+                        if (size > 7f)
+                        {
+                            for (int i = 0; i < r.Next(2, 3); i++)
+                            {
+                                Asteroids.EntitiesToSpawn.Add(new Asteroid(false)
+                                {
+                                    X = X,
+                                    Y = Y,
+                                    size = 7f - (float)(r.NextDouble() * 2),
+                                    theta = (float)(r.NextDouble() * Math.PI * 2)
+                                });
+                            }
+                        }
+                    }
+                } 
             }
         }
     }

@@ -85,5 +85,10 @@ namespace Asteroids
         {
 
         }
+
+        public virtual void Reset()
+        {
+            dead = true;
+        }
     }
 }
