@@ -60,26 +60,33 @@ namespace Asteroids
             if (Asteroids.Ticks - lastShot > fireDelay)
             {
                 lastShot = Asteroids.Ticks;
-                Asteroids.Entities.Add(new Bullet(X, Y, theta));
+                Asteroids.Entities.Add(new Bullet(X + (float)Math.Cos(theta)*5f, Y + (float)Math.Sin(theta)*5f, theta));
             }
         }
 
         public override void Render()
         {
+            GL.PushMatrix();
+
+            GL.Translate(X, Y, 0);
+            GL.Rotate((theta - Math.PI/2) * 180/Math.PI, 0, 0, 1);
+
             GL.Begin(PrimitiveType.Triangles);
 
             GL.Enable(EnableCap.Blend);
             GL.Enable(EnableCap.Texture2D);
 
             GL.Color4(1f, 1f, 1f, 0.5f);
-            GL.Vertex2(X + Math.Cos(theta) * 5, Y + Math.Sin(theta) * 5);
-            GL.Vertex2(X + Math.Cos(theta - (Math.PI * 2.4) / 2) * 8, Y + Math.Sin(theta - (Math.PI * 2.4) / 2) * 8);
-            GL.Vertex2(X + Math.Cos(theta + (Math.PI * 2.4) / 2) * 8, Y + Math.Sin(theta + (Math.PI * 2.4) / 2) * 8);
+            GL.Vertex2(0f, 4f);
+            GL.Vertex2(5f, -11f);
+            GL.Vertex2(-5f, -11f);
 
             GL.Disable(EnableCap.Blend);
             GL.Disable(EnableCap.Texture2D);
 
             GL.End();
+
+            GL.PopMatrix();
         }
     }
 }

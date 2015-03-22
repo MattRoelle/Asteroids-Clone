@@ -33,15 +33,21 @@ namespace Asteroids
         {
             base.Render();
 
+            GL.PushMatrix();
+
+            GL.Translate(X, Y, 0);
+
             GL.Begin(PrimitiveType.Quads);
 
             GL.Color3(Color.White);
-            GL.Vertex2(X + 1.25f, Y + 1.25f);
-            GL.Vertex2(X - 1.25f, Y + 1.25f);
-            GL.Vertex2(X - 1.25f, Y - 1.25f);
-            GL.Vertex2(X + 1.25f, Y - 1.25f);
+            GL.Vertex2(1.25f, 1.25f);
+            GL.Vertex2(-1.25f, 1.25f);
+            GL.Vertex2(-1.25f, -1.25f);
+            GL.Vertex2(1.25f, -1.25f);
 
             GL.End();
+
+            GL.PopMatrix();
         }
 
         public override void Update()
