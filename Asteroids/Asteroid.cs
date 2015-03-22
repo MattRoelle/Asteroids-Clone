@@ -95,36 +95,33 @@ namespace Asteroids
                 accelerating = true;
             }
 
-            if (!spawning)
+            foreach (Bullet bullet in Asteroids.Entities.FindAll((e) => e is Bullet))
             {
-                foreach (Bullet bullet in Asteroids.Entities.FindAll((e) => e is Bullet))
+                if (Math.Sqrt(Math.Pow(bullet.X - X, 2) + Math.Pow(bullet.Y - Y, 2)) < size*1.35f)
                 {
-                    if (Math.Sqrt(Math.Pow(bullet.X - X, 2) + Math.Pow(bullet.Y - Y, 2)) < size*1.35f)
+                    this.dead = true;
+                    bullet.dead = true;
+                    Asteroids.EntitiesToSpawn.Add(new Explosion()
                     {
-                        this.dead = true;
-                        bullet.dead = true;
-                        Asteroids.EntitiesToSpawn.Add(new Explosion()
-                        {
-                            X = X,
-                            Y = Y
-                        });
+                        X = X,
+                        Y = Y
+                    });
 
-                        Random r = new Random();
-                        if (size > 7f)
+                    Random r = new Random();
+                    if (size > 7f)
+                    {
+                        for (int i = 0; i < r.Next(2, 3); i++)
                         {
-                            for (int i = 0; i < r.Next(2, 3); i++)
+                            Asteroids.EntitiesToSpawn.Add(new Asteroid(false)
                             {
-                                Asteroids.EntitiesToSpawn.Add(new Asteroid(false)
-                                {
-                                    X = X,
-                                    Y = Y,
-                                    size = 7f - (float)(r.NextDouble() * 2),
-                                    theta = (float)(r.NextDouble() * Math.PI * 2)
-                                });
-                            }
+                                X = X,
+                                Y = Y,
+                                size = 7f - (float)(r.NextDouble() * 2),
+                                theta = (float)(r.NextDouble() * Math.PI * 2)
+                            });
                         }
                     }
-                } 
+                }
             }
         }
     }
