@@ -19,7 +19,7 @@ namespace Asteroids
         {
             this.liveTime = 200;
             Random r = new Random();
-            int nParticles = r.Next(50, 80);
+            int nParticles = r.Next(25, 40);
             for (int i = 0; i < nParticles; i++)
             {
                 particles.Add(new Particle()

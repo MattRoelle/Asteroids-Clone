@@ -14,14 +14,30 @@ namespace Asteroids
 {
     class Asteroid : Entity
     {
+        public int grain;
+        public float[][] points;
+
         public Asteroid()
         {
             Random r = new Random();
+            // Initial Position
             X = (float)r.NextDouble() * Asteroids.GameWidth;
             Y = (float)r.NextDouble() * Asteroids.GameHeight;
+
+            // Size
             size = ((float)r.NextDouble() * 15f) + 7.5f;
             theta = (float)(r.NextDouble() * Math.PI * 2);
-            accelerating = true;
+            grain = r.Next(6, 10);
+            points = new float[grain][];
+            for (int i = 0; i < grain; i++)
+            {
+                float angle = (((float)i + 1f) / grain) * (float)Math.PI * 2f;
+                float alteredSize = size + (float)((r.NextDouble() * 6) - 2);
+                points[i] = new float[2] { (float)Math.Cos(angle)*alteredSize, (float)Math.Sin(angle)*alteredSize };
+            }
+
+                // Speed
+                accelerating = true;
             topSpeed = (float)(r.NextDouble() * 3) + 1f;
             speed = topSpeed;
         }
@@ -30,14 +46,13 @@ namespace Asteroids
         {
            base.Render();
 
-           GL.Begin(PrimitiveType.Quads);
-
+           GL.Begin(PrimitiveType.LineStrip);
            GL.Color3(Color.Ivory);
-           GL.Vertex2(X + size, Y + size);
-           GL.Vertex2(X - size, Y + size);
-           GL.Vertex2(X - size, Y - size);
-           GL.Vertex2(X + size, Y - size);
-
+           for (int i = 0; i < grain; i++)
+           {
+               GL.Vertex2(X + points[i][0], Y + points[i][1]);
+           }
+           GL.Vertex2(X + points[0][0], Y + points[0][1]);
            GL.End();
         }
 
@@ -47,9 +62,7 @@ namespace Asteroids
 
             foreach(Bullet bullet in Asteroids.Entities.FindAll((e) => e is Bullet))
             {
-                Rect r1 = new Rect(bullet.X, bullet.Y, 0.5f, 0.5f);
-                Rect r2 = new Rect(X - size/2, Y - size/2, size, size);
-                if (r1.Intersects(r2))
+                if (Math.Sqrt(Math.Pow(bullet.X - X, 2) + Math.Pow(bullet.Y - Y, 2)) < size)
                 {
                     this.dead = true;
                     bullet.dead = true;
