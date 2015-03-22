@@ -68,12 +68,16 @@ namespace Asteroids
         {
             GL.Begin(PrimitiveType.Triangles);
 
-            GL.Color3(Color.Ivory);
+            GL.Enable(EnableCap.Blend);
+            GL.Enable(EnableCap.Texture2D);
+
+            GL.Color4(1f, 1f, 1f, 0.5f);
             GL.Vertex2(X + Math.Cos(theta) * 5, Y + Math.Sin(theta) * 5);
-            GL.Color3(Color.Ivory);
             GL.Vertex2(X + Math.Cos(theta - (Math.PI * 2.4) / 2) * 8, Y + Math.Sin(theta - (Math.PI * 2.4) / 2) * 8);
-            GL.Color3(Color.Ivory);
             GL.Vertex2(X + Math.Cos(theta + (Math.PI * 2.4) / 2) * 8, Y + Math.Sin(theta + (Math.PI * 2.4) / 2) * 8);
+
+            GL.Disable(EnableCap.Blend);
+            GL.Disable(EnableCap.Texture2D);
 
             GL.End();
         }

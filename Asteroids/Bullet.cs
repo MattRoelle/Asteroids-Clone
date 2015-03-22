@@ -15,7 +15,7 @@ namespace Asteroids
     class Bullet : Entity
     {
 
-        private Int64 BirthTicks;
+        private Int64 birthTicks;
 
         public Bullet(float sX, float sY, float sTheta)
         {
@@ -26,7 +26,7 @@ namespace Asteroids
             Y = sY;
             theta = sTheta;
 
-            BirthTicks = Asteroids.Ticks;
+            birthTicks = Asteroids.Ticks;
         }
 
         public override void Render()
@@ -48,7 +48,7 @@ namespace Asteroids
         {
             base.Update();
 
-            if (BirthTicks + 100 < Asteroids.Ticks)
+            if (birthTicks + 100 < Asteroids.Ticks)
             {
                 this.dead = true;
             }

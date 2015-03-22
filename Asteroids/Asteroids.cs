@@ -12,6 +12,7 @@ namespace Asteroids
     class Asteroids
     {
         public static List<Entity> Entities = new List<Entity>();
+        public static List<Entity> EntitiesToSpawn = new List<Entity>();
 
         public static float GameWidth = 400f;
         public static float GameHeight = 300f;
@@ -35,7 +36,10 @@ namespace Asteroids
                     // Initialize
                     GL.MatrixMode(MatrixMode.Projection);
                     GL.LoadIdentity();
-                    GL.Ortho(0.0, 400.0, 300.0, 0.0, 0.0, 4.0);
+                    GL.Ortho(0.0, GameWidth, GameHeight, 0.0, 0.0, 4.0);
+
+                    GL.Disable(EnableCap.DepthTest);
+                    GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
                 };
 
                 game.Resize += (sender, e) =>
@@ -62,7 +66,13 @@ namespace Asteroids
                             entity.Update();
                     }
 
+                    foreach (Entity entity in EntitiesToSpawn)
+                    {
+                        Entities.Add(entity);
+                    }
 
+
+                    EntitiesToSpawn.RemoveAll((entity) => true);
                     Entities.RemoveAll((entity) => entity.dead);
                 };
 

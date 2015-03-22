@@ -53,6 +53,11 @@ namespace Asteroids
                 {
                     this.dead = true;
                     bullet.dead = true;
+                    Asteroids.EntitiesToSpawn.Add(new Explosion()
+                    {
+                        X = X,
+                        Y = Y
+                    });
                 }
             }
         }
