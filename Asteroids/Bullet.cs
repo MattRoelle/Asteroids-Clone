@@ -58,6 +58,16 @@ namespace Asteroids
             {
                 this.dead = true;
             }
+
+            Random r = new Random();
+            if (r.Next(0, 100) > 70)
+            {
+                Asteroids.EntitiesToSpawn.Add(new Trail()
+                {
+                    X = X,
+                    Y = Y
+                });
+            }
         }
     }
 }
